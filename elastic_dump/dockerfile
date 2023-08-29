@@ -1,0 +1,32 @@
+FROM node:14.18.2-alpine3.15
+
+ENV TZ=Asia/Shanghai
+ENV TERM xterm
+
+RUN echo "alias ll='ls -l --color=auto'" >> /etc/profile && \
+    mv /etc/apk/repositories /etc/apk/repositories.bak && \
+    echo "https://mirrors.huaweicloud.com/alpine/v3.15/main" > /etc/apk/repositories && \
+    echo "https://mirrors.huaweicloud.com/alpine/v3.15/community" >> /etc/apk/repositories
+
+RUN apk add --update --no-cache \
+    procps \
+    net-tools \
+    vim \
+    wget \
+    git \
+    curl \
+    bash
+
+RUN apk add tzdata && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN npm install -g elasticdump@6.103.0 && \
+    wget https://obs-community.obs.cn-north-1.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz && \
+    tar -zxvf obsutil_linux_amd64.tar.gz && \
+    mv obsutil_linux_amd64_5.4.11/obsutil /usr/local/bin/ && \
+    rm -rf obsutil_5.3.6_linux_amd64.tar.gz && \
+    mkdir -pv /zuoyang
+
+WORKDIR /zuoyang
+
+CMD ["tail", "-f", "/dev/null"]

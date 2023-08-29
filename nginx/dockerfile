@@ -1,0 +1,21 @@
+FROM nginx:1.25.0-bullseye-perl
+
+ENV LANG=zh_CN.UTF-8 \
+    LANGUAGE=zh_CN.UTF-8 \
+    LC_ALL=zh_CN.UTF-8
+
+# 修改时区以及安装语言包
+RUN sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends tzdata locales \
+    && echo "Asia/Shanghai" > /etc/timezone \
+    && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales \
+    && localedef -i zh_CN -f UTF-8 zh_CN.UTF-8 \
+    && apt-get install -y fonts-wqy-zenhei fonts-wqy-microhei fonts-arphic-ukai fonts-arphic-uming \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# 清理缓存和不必要文件
+RUN apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
