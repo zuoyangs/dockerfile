@@ -1,0 +1,23 @@
+FROM apache/apisix:3.2.2-centos  
+  
+# 设置工作目录  
+WORKDIR /app  
+  
+# 复制时区配置文件到容器中  
+COPY zoneinfo /usr/share/zoneinfo  
+  
+# 设置时区  
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime  
+  
+# 替换国内镜像源  
+RUN wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo \
+  && sed -i -e '/mirrors.cloud.aliyuncs.com/d' -e '/mirrors.aliyuncs.com/d' /etc/yum.repos.d/CentOS-Base.repo 
+  
+# 将 Apisix 配置文件复制到容器中  
+COPY apisix.conf /usr/local/apisix/conf/apisix.conf  
+  
+# 将 Apisix 插件复制到容器中  
+COPY plugins /usr/local/apisix/plugins  
+  
+# 暴露 Apisix 的管理端口和 HTTP 端口  
+EXPOSE 9080 9081
